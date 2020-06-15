@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "target": "es6",
+    "module": "commonjs",
+    "strict": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "outDir": "build",
+    "types": ["node", "jest"],
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*.ts", "./lib.dom.d.ts"],
+  "exclude": ["build", "node_modules", "src/**/*.d.ts"]
+}
