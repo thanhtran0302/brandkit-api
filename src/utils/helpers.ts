@@ -2,8 +2,9 @@ import { NextFunction, Request, Response } from 'express';
 import jwtDecode from 'jwt-decode';
 
 export interface TokenProps {
-  uid: string;
-  expiredAt: number;
+  email: string;
+  iat: number;
+  exp: number;
 }
 
 export const accessControlAllowHeaders = (
@@ -38,7 +39,7 @@ export const authorizationToken = (
     method
   } = req;
 
-  const whiteList = ['/api/health'];
+  const whiteList: string[] = ['/api/health', '/api/signup', '/api/login'];
 
   if (whiteList.includes(req.path) || method === 'OPTIONS') {
     return next();
@@ -51,7 +52,7 @@ export const authorizationToken = (
       throw new Error('no user');
     }
 
-    if (user && isExpiredToken(user.expiredAt)) {
+    if (user && isExpiredToken(user.exp)) {
       return res.status(401).send({ errors: ['expiredUser'] });
     }
     return next();
@@ -66,4 +67,7 @@ export const isProduction = (): boolean =>
 export const decodeToken = (token?: string): TokenProps | null =>
   (token && jwtDecode(token)) || null;
 
-export const isExpiredToken = (date: number): boolean => date < Date.now();
+export const isExpiredToken = (date: number): boolean =>
+  date < unixTimestamp(Date.now());
+
+export const unixTimestamp = (date: number): number => Math.floor(date / 1000);
