@@ -18,6 +18,7 @@ interface LoginPayload {
 }
 
 interface UserResult {
+  id: string;
   email: string;
   password: string;
   is_activated: boolean;
@@ -36,9 +37,13 @@ router.route('/').post(async (req: Request, res: Response) => {
     const { rows }: QueryResult<UserResult> = result;
     const [userResult] = rows;
     const isPasswordValid = await bcrypt.compare(password, userResult.password);
-    const token: string = jwt.sign({ email }, TOKEN_SECRET, {
-      expiresIn: '30d'
-    });
+    const token: string = jwt.sign(
+      { email, userId: userResult.id },
+      TOKEN_SECRET,
+      {
+        expiresIn: '30d'
+      }
+    );
 
     if (isPasswordValid) {
       return res.status(200).send({

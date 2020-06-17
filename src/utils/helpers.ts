@@ -3,8 +3,14 @@ import jwtDecode from 'jwt-decode';
 
 export interface TokenProps {
   email: string;
+  userId: string;
   iat: number;
   exp: number;
+}
+
+export interface UserSessionInfos {
+  token: string;
+  user: TokenProps;
 }
 
 export const accessControlAllowHeaders = (
@@ -55,6 +61,10 @@ export const authorizationToken = (
     if (user && isExpiredToken(user.exp)) {
       return res.status(401).send({ errors: ['expiredUser'] });
     }
+    res.locals = ({
+      token: authorization,
+      user
+    } as unknown) as UserSessionInfos;
     return next();
   } catch (error) {
     return res.status(401).send({ errors: ['noTokenFound'] });
