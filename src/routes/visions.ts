@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { QueryResult } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 import { pool } from '../utils/database';
-import { objectToQuery } from '../utils/query';
+import { objectToQueryUpdate } from '../utils/query';
 
 const router = express.Router();
 
@@ -75,7 +75,7 @@ router.route('/:visionId').put(async (req: Request, res: Response) => {
 
   try {
     await pool.query(
-      `UPDATE visions SET ${objectToQuery(req.body)} WHERE id = $1`,
+      `UPDATE visions SET ${objectToQueryUpdate(req.body)} WHERE id = $1`,
       [visionId]
     );
     return res.status(200).send({ message: 'SUCCUESS_MODIFY_VISION' });

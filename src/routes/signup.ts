@@ -1,7 +1,8 @@
 import bcrypt from 'bcrypt';
 import express, { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { v1 as uuidv1, v4 as uuidv4 } from 'uuid';
 import { pool } from '../utils/database';
+import { Dictionary, objectToQueryInsert } from '../utils/query';
 
 const router = express.Router();
 
@@ -17,8 +18,15 @@ interface SignUpPayload {
   confirm_password: string;
 }
 
+enum Plan {
+  FREE = 'FREE',
+  AGENCY = 'AGENCY',
+  STARTUP = 'STARTUP'
+}
+
 router.route('/').post(async (req: Request, res: Response) => {
   const userId: string = uuidv4();
+  const activationToken: string = uuidv1();
   const { email, password, confirm_password }: SignUpPayload = req.body;
   const hashPass = await bcrypt.hash(password, 12);
 
@@ -27,13 +35,20 @@ router.route('/').post(async (req: Request, res: Response) => {
   }
 
   try {
-    await pool.query(`INSERT INTO users VALUES($1, $2, $3, false)`, [
+    const query: Dictionary = {
       userId,
       email,
-      hashPass
-    ]);
+      hashPass,
+      is_activated: false,
+      create_date: new Date().toISOString(),
+      activationToken,
+      plan: Plan.FREE
+    };
+    console.log(query, objectToQueryInsert(query));
+    await pool.query(`INSERT INTO users VALUES(${objectToQueryInsert(query)})`);
     return res.status(200).send({ message: SIGNUP.SUCCESS });
   } catch (error) {
+    console.log({ error });
     return res.status(500).send({
       message: SIGNUP.FAILED
     });
