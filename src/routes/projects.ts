@@ -8,6 +8,7 @@ const router = express.Router();
 
 export interface ProjectPayload {
   name: string;
+  description: string;
 }
 
 export interface Project {
@@ -43,13 +44,14 @@ router
   .route('/')
   .post(shouldCreateProject, async (req: Request, res: Response) => {
     const projectId: string = uuidv4();
-    const { name }: ProjectPayload = req.body;
+    const { name, description }: ProjectPayload = req.body;
 
     try {
-      await pool.query('INSERT INTO projects VALUES($1, $2, $3)', [
+      await pool.query('INSERT INTO projects VALUES($1, $2, $3, $4)', [
         projectId,
         res.locals.user.userId,
-        name
+        name,
+        description
       ]);
       return res.status(200).send({ message: 'PROJECT_CREATED' });
     } catch (error) {

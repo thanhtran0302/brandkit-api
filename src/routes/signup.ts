@@ -27,11 +27,10 @@ router.route('/').post(async (req: Request, res: Response) => {
   }
 
   try {
-    await pool.query(`INSERT INTO users VALUES($1, $2, $3, $4)`, [
+    await pool.query(`INSERT INTO users VALUES($1, $2, $3, false)`, [
       userId,
       email,
-      hashPass,
-      false
+      hashPass
     ]);
     return res.status(200).send({ message: SIGNUP.SUCCESS });
   } catch (error) {
