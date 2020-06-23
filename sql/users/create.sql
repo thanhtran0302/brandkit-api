@@ -7,5 +7,6 @@ create table users(
   activation_token  varchar(50) NOT NULL,
   plan              varchar(255) NOT NULL,
   firstname         varchar(100) NULL,
-  lastname          varchar(100) NULL
+  lastname          varchar(100) NULL,
+  reset_pwd_token   varchar(50) NULL
 );

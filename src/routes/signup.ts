@@ -44,11 +44,9 @@ router.route('/').post(async (req: Request, res: Response) => {
       activationToken,
       plan: Plan.FREE
     };
-    console.log(query, objectToQueryInsert(query));
     await pool.query(`INSERT INTO users VALUES(${objectToQueryInsert(query)})`);
     return res.status(200).send({ message: SIGNUP.SUCCESS });
   } catch (error) {
-    console.log({ error });
     return res.status(500).send({
       message: SIGNUP.FAILED
     });
