@@ -36,7 +36,7 @@ async function shouldCreateProject(
     }
     return res.status(400).send({ message: 'PROJECT_NAME_EXISTED' });
   } catch (error) {
-    return res.status(500).send({ message: 'FAIL_PROJECT_CREATION' });
+    return res.status(500).send({ message: 'FAIL_GET_CREATION' });
   }
 }
 
@@ -47,11 +47,12 @@ router
     const { name, description }: ProjectPayload = req.body;
 
     try {
-      await pool.query('INSERT INTO projects VALUES($1, $2, $3, $4)', [
+      await pool.query('INSERT INTO projects VALUES($1, $2, $3, $4, $5)', [
         projectId,
         res.locals.user.userId,
         name,
-        description
+        description,
+        new Date().toISOString()
       ]);
       return res.status(200).send({ message: 'PROJECT_CREATED' });
     } catch (error) {
