@@ -45,6 +45,7 @@ router
   .post(shouldCreateProject, async (req: Request, res: Response) => {
     const projectId: string = uuidv4();
     const { name, description }: ProjectPayload = req.body;
+    const currentDate: string = new Date().toISOString();
 
     try {
       await pool.query('INSERT INTO projects VALUES($1, $2, $3, $4, $5)', [
@@ -52,9 +53,17 @@ router
         res.locals.user.userId,
         name,
         description,
-        new Date().toISOString()
+        currentDate
       ]);
-      return res.status(200).send({ message: 'PROJECT_CREATED' });
+      return res.status(200).send({
+        message: 'PROJECT_CREATED',
+        project: {
+          id: projectId,
+          name,
+          description,
+          creation_date: currentDate
+        }
+      });
     } catch (error) {
       return res.status(500).send({ message: 'FAIL_PROJECT_CREATION' });
     }
