@@ -4,5 +4,6 @@ create table projects
   user_id varchar(50) NOT NULL REFERENCES users(id),
   name varchar(255) NOT NULL UNIQUE,
   description varchar(255) NOT NULL,
-  creation_date timestamp NOT NULL
+  creation_date timestamp NOT NULL,
+  update_date timestamp NULL
 );
