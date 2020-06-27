@@ -9,7 +9,7 @@ const router = express.Router();
 
 enum LOGIN {
   SUCCESS = 'LOGIN_SUCCESS',
-  ERROR_FAIL_LOGIN = 'ERROR_FAIL_LOGIN'
+  FAIL = 'FAIL_LOGIN'
 }
 
 interface LoginPayload {
@@ -45,7 +45,7 @@ router.route('/').post(async (req: Request, res: Response) => {
     );
     const isPasswordValid = await bcrypt.compare(password, userResult.password);
     if (!isPasswordValid) {
-      return res.status(400).send({ message: LOGIN.ERROR_FAIL_LOGIN });
+      return res.status(400).send({ message: LOGIN.FAIL });
     }
 
     if (isPasswordValid) {
@@ -56,7 +56,7 @@ router.route('/').post(async (req: Request, res: Response) => {
     }
   } catch (error) {
     return res.status(400).send({
-      message: LOGIN.ERROR_FAIL_LOGIN
+      message: LOGIN.FAIL
     });
   }
 });
