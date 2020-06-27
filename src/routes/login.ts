@@ -8,8 +8,8 @@ import { pool } from '../utils/database';
 const router = express.Router();
 
 enum LOGIN {
-  SUCCESS = 'SUCCESS_LOGIN',
-  FAILED = 'FAILED_LOGIN'
+  SUCCESS = 'LOGIN_SUCCESS',
+  ERROR_FAIL_LOGIN = 'ERROR_FAIL_LOGIN'
 }
 
 interface LoginPayload {
@@ -36,7 +36,6 @@ router.route('/').post(async (req: Request, res: Response) => {
     );
     const { rows }: QueryResult<UserResult> = result;
     const [userResult] = rows;
-    const isPasswordValid = await bcrypt.compare(password, userResult.password);
     const token: string = jwt.sign(
       { email, userId: userResult.id },
       TOKEN_SECRET,
@@ -44,6 +43,10 @@ router.route('/').post(async (req: Request, res: Response) => {
         expiresIn: '30d'
       }
     );
+    const isPasswordValid = await bcrypt.compare(password, userResult.password);
+    if (!isPasswordValid) {
+      return res.status(400).send({ message: LOGIN.ERROR_FAIL_LOGIN });
+    }
 
     if (isPasswordValid) {
       return res.status(200).send({
@@ -51,10 +54,9 @@ router.route('/').post(async (req: Request, res: Response) => {
         token
       });
     }
-    return res.status(400).send({ message: LOGIN.FAILED });
   } catch (error) {
-    return res.status(500).send({
-      message: LOGIN.FAILED
+    return res.status(400).send({
+      message: LOGIN.ERROR_FAIL_LOGIN
     });
   }
 });
