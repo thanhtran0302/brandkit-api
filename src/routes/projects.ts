@@ -85,7 +85,6 @@ router.route('/').get(async (_req: Request, res: Response) => {
       'SELECT * FROM projects WHERE user_id = $1',
       [userId]
     );
-    console.log(rows);
     return res.status(200).send(rows);
   } catch (error) {
     return res.status(500).send({
