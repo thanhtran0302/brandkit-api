@@ -13,11 +13,14 @@ export interface ProjectPayload {
 
 export interface Project {
   id: string;
-  user_id: string;
   name: string;
   description: string;
   creation_date: string;
-  update_date: string;
+  update_date: string | null;
+}
+
+export interface ProjectORM extends Project {
+  user_id: string;
 }
 
 async function shouldCreateProject(
@@ -81,11 +84,16 @@ router.route('/').get(async (_req: Request, res: Response) => {
   try {
     const {
       rows
-    }: QueryResult<Project> = await pool.query(
+    }: QueryResult<ProjectORM> = await pool.query(
       'SELECT * FROM projects WHERE user_id = $1',
       [userId]
     );
-    return res.status(200).send(rows);
+    const results: Project[] = rows.map((project: ProjectORM) => {
+      const { user_id, ...rest } = project;
+      return rest;
+    });
+
+    return res.status(200).send(results);
   } catch (error) {
     return res.status(500).send({
       message: 'FAIL_GET_PROJECTS'
