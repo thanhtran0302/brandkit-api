@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import jwtDecode from 'jwt-decode';
+import { Project } from '../routes/projects';
 
 export interface TokenProps {
   email: string;
@@ -11,6 +12,7 @@ export interface TokenProps {
 export interface UserSessionInfos {
   token: string;
   user: TokenProps;
+  project?: Project;
 }
 
 export const accessControlAllowHeaders = (
@@ -18,12 +20,6 @@ export const accessControlAllowHeaders = (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.method !== 'OPTIONS' && req.headers['x-requested-with']) {
-    res.locals = {
-      xRequestWith: req.headers['x-requested-with']
-    };
-  }
-
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
   res.setHeader(
