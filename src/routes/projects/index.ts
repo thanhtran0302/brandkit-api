@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import { QueryResult } from 'pg';
 import { pool } from '../../utils/database';
-import { UserSessionInfos, TokenProps } from '../../utils/helpers';
+import { TokenProps } from '../../utils/helpers';
 import {
   createProject,
   initializeUIComponents,
