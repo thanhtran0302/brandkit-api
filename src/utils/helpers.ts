@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import jwtDecode from 'jwt-decode';
-import { Project } from '../routes/projects';
+import { IProject } from '../routes/projects';
 
 export interface TokenProps {
   email: string;
@@ -12,7 +12,7 @@ export interface TokenProps {
 export interface UserSessionInfos {
   token: string;
   user: TokenProps;
-  project?: Project;
+  project?: IProject;
 }
 
 export const accessControlAllowHeaders = (
@@ -38,7 +38,7 @@ export const authorizationToken = (
 ) => {
   const {
     headers: { authorization },
-    method
+    method,
   } = req;
 
   const whiteList: string[] = ['/api/health', '/api/signup', '/api/login'];
@@ -59,7 +59,7 @@ export const authorizationToken = (
     }
     res.locals = ({
       token: authorization,
-      user
+      user,
     } as unknown) as UserSessionInfos;
     return next();
   } catch (error) {

@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
 import { QueryResult } from 'pg';
 import { pool } from '../../utils/database';
-import { UserSessionInfos } from '../../utils/helpers';
+import { UserSessionInfos, TokenProps } from '../../utils/helpers';
 import {
   createProject,
   initializeUIComponents,
-  shouldCreateProject
+  shouldCreateProject,
 } from './create.action';
 
 const router = express.Router();
@@ -15,7 +15,7 @@ export interface ProjectPayload {
   description: string;
 }
 
-export interface Project {
+export interface IProject {
   id: string;
   name: string;
   description: string;
@@ -23,7 +23,7 @@ export interface Project {
   update_date: string | null;
 }
 
-export interface ProjectORM extends Project {
+export interface ProjectORM extends IProject {
   user_id: string;
 }
 
@@ -33,17 +33,17 @@ router
 
 router.route('/').get(async (_req: Request, res: Response) => {
   const {
-    user: { userId }
-  }: UserSessionInfos = res.locals;
+    user: { userId },
+  }: Record<string, TokenProps> = res.locals;
 
   try {
     const {
-      rows
+      rows,
     }: QueryResult<ProjectORM> = await pool.query(
       'SELECT * FROM projects WHERE user_id = $1',
       [userId]
     );
-    const results: Project[] = rows.map((project: ProjectORM) => {
+    const results: IProject[] = rows.map((project: ProjectORM) => {
       const { user_id, ...rest } = project;
       return rest;
     });
@@ -51,7 +51,7 @@ router.route('/').get(async (_req: Request, res: Response) => {
     return res.status(200).send(results);
   } catch (error) {
     return res.status(500).send({
-      message: 'FAIL_GET_PROJECTS'
+      message: 'FAIL_GET_PROJECTS',
     });
   }
 });
@@ -60,16 +60,16 @@ router.route('/:projectId').get(async (req: Request, res: Response) => {
   const { projectId } = req.params;
 
   try {
-    const { rows }: QueryResult<Project> = await pool.query<Project>(
+    const { rows }: QueryResult<IProject> = await pool.query<IProject>(
       'SELECT * FROM projects WHERE id = $1',
       [projectId]
     );
-    const [project]: Project[] = rows;
+    const [project]: IProject[] = rows;
 
     return res.status(200).send(project);
   } catch (error) {
     return res.status(500).send({
-      message: 'FAIL_EDIT_PROJECT'
+      message: 'FAIL_EDIT_PROJECT',
     });
   }
 });
@@ -81,14 +81,14 @@ router.route('/:projectId').put(async (req: Request, res: Response) => {
   try {
     await pool.query('UPDATE projects SET name = $1 WHERE id = $2', [
       name,
-      projectId
+      projectId,
     ]);
     return res.status(200).send({
-      message: 'SUCCESS_EDIT_PROJECT'
+      message: 'SUCCESS_EDIT_PROJECT',
     });
   } catch (error) {
     return res.status(500).send({
-      message: 'FAIL_EDIT_PROJECT'
+      message: 'FAIL_EDIT_PROJECT',
     });
   }
 });
@@ -99,11 +99,11 @@ router.route('/:projectId').delete(async (req: Request, res: Response) => {
   try {
     await pool.query('DELETE FROM projects WHERE id = $1', [projectId]);
     return res.status(200).send({
-      message: 'SUCCESS_DELETE_PROJECT'
+      message: 'SUCCESS_DELETE_PROJECT',
     });
   } catch (error) {
     return res.status(500).send({
-      message: 'FAIL_DELETE_PROJECT'
+      message: 'FAIL_DELETE_PROJECT',
     });
   }
 });

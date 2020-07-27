@@ -1,21 +1,21 @@
 import { NextFunction, Request, Response } from 'express';
 import { QueryResult } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
-import { Project, ProjectPayload } from '.';
+import { IProject, ProjectPayload } from '.';
 import alertStyles from '../../constants/alertStyles';
 import { pool } from '../../utils/database';
-import { UserSessionInfos } from '../../utils/helpers';
+import { TokenProps } from '../../utils/helpers';
 
 export async function shouldCreateProject(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const { user }: UserSessionInfos = res.locals;
+  const { user }: Record<string, TokenProps> = res.locals;
   const { name }: ProjectPayload = req.body;
 
   try {
-    const { rows }: QueryResult<Project> = await pool.query<Project>(
+    const { rows }: QueryResult<IProject> = await pool.query<IProject>(
       'SELECT * FROM projects WHERE user_id = $1 AND name = $2',
       [user.userId, name]
     );
@@ -44,7 +44,7 @@ export async function createProject(
       res.locals.user.userId,
       name,
       description,
-      currentDate
+      currentDate,
     ]);
     res.locals = {
       ...res.locals,
@@ -53,8 +53,8 @@ export async function createProject(
         name,
         description,
         creation_date: currentDate,
-        update_date: null
-      }
+        update_date: null,
+      },
     };
     return next();
   } catch (error) {
@@ -64,7 +64,7 @@ export async function createProject(
 
 export async function initializeUIComponents(_req: Request, res: Response) {
   const componentId: string = uuidv4();
-  const { project }: UserSessionInfos = res.locals;
+  const { project }: Record<string, IProject> = res.locals;
 
   try {
     await pool.query(
@@ -76,13 +76,13 @@ export async function initializeUIComponents(_req: Request, res: Response) {
         alertStyles.description,
         new Date().toISOString(),
         alertStyles.primaryStyle,
-        alertStyles.secondaryStyle
+        alertStyles.secondaryStyle,
       ]
     );
 
     return res.status(200).send({
       message: 'PROJECT_CREATED',
-      project
+      project,
     });
   } catch (err) {
     return res.status(500).send({ message: 'FAIL_INITIALIZE_PROJECT' });
